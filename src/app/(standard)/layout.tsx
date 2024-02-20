@@ -9,13 +9,13 @@ export default async function StandardLayout({
   return (
     <>
       <header>
-        <Wrapper>Header</Wrapper>
+        <Wrapper>Pokedex</Wrapper>
       </header>
       <main>
         <Wrapper>{children}</Wrapper>
       </main>
       <footer>
-        <Wrapper>Footer</Wrapper>
+        <Wrapper>Copyright {new Date().getFullYear()}</Wrapper>
       </footer>
     </>
   )

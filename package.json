@@ -9,7 +9,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "shad-add": "npx shadcn-ui@latest add"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.0.4",
