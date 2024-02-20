@@ -9,7 +9,7 @@ export default function Wrapper({
   className?: string
 }) {
   return (
-    <section className={cn('p-6 max-w-7xl mx-auto', className)}>
+    <section className={cn('p-6 max-w-7xl mx-auto Wrapper', className)}>
       {children}
     </section>
   )
