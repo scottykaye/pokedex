@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { PrismaClient } from '@prisma/client'
 
 const pokemon = [
   'Bulbasaur',
@@ -193,7 +194,24 @@ function getFormattedNumber(number) {
   return `#${number}`
 }
 
+async function saveUser(user) {
+  const response = await fetch('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(user),
+  })
+
+  if (!response.ok) {
+    throw new Error(response.statusText)
+  }
+
+  return await response.json()
+}
+
+const prisma = new PrismaClient()
+
 export default async function StandardPage() {
+  const users = await prisma.users.findMany()
+  console.log('test', users)
   /// const { pokemon_entries } = await getPokemon()
   const data = await getPokemon()
   // const poke = await Promise.allSettled(getIndividualPokemon(pokemon_entries))
