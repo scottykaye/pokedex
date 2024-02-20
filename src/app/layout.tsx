@@ -28,7 +28,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <head />
         <body
-          className={`${inter.className} grid grid-cols-min-contenxt h-dvh text-white grid-cols grid-rows-layout gap-10`}
+          className={`${inter.className} grid grid-cols-min-contenxt min-h-dvh grid-cols grid-rows-layout gap-10`}
         >
           <ThemeProvider
             attribute="class"

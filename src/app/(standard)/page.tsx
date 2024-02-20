@@ -198,28 +198,31 @@ export default async function StandardPage() {
   const data = await getPokemon()
   // const poke = await Promise.allSettled(getIndividualPokemon(pokemon_entries))
   const poke = await Promise.allSettled(getIndividualPokemon(data.results))
-  console.log(poke)
 
   return (
     <Suspense fallback="Loading...">
-      <div className="grid grid-cols-3 gap-x-5 gap-y-32 ">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-32 ">
         {poke.map(({ value: poke }) => {
           return (
             <Card
               key={poke.id}
-              className="p-4 flex flex-col group hover:-translate-y-2 hover:border-slate-400 transition-all"
+              className="p-4 flex flex-col group hover:-translate-y-2 hover:border-slate-400 transition-all shadow-3xlxl"
             >
               <CardContent className="grow -mt-20 pb-20 self-center bg-background">
                 <Image
                   width={150}
                   height={150}
                   className="px-5 group-hover:scale-150 transition-transform"
+                  alt={
+                    poke.name.toUpperCase().charAt(0) +
+                    poke.name.replace(/-/g, ' ').slice(1)
+                  }
                   src={poke.sprites.other.dream_world.front_default}
                 />
               </CardContent>
-              <hr />
+              <hr className="group-hover:border-slate-400 transition-colors" />
               <CardHeader className="mt-auto">
-                <CardTitle className="text-slate-500 transition-colors group-hover:text-slate-100">
+                <CardTitle className="text-slate-400 transition-colors group-hover:text-slate-500/90">
                   {getFormattedNumber(poke.id)}{' '}
                   {poke.name.toUpperCase().charAt(0) +
                     poke.name.replace(/-/g, ' ').slice(1)}{' '}
