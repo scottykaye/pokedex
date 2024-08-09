@@ -1,175 +1,22 @@
-import Image from 'next/image'
-import React, { Suspense } from 'react'
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
 import { PrismaClient } from '@prisma/client'
-
-const pokemon = [
-  'Bulbasaur',
-  'Ivysaur',
-  'Venusaur',
-  'Charmander',
-  'Charmeleon',
-  'Charizard',
-  'Squirtle',
-  'Wartortle',
-  'Blastoise',
-  'Caterpie',
-  'Metapod',
-  'Butterfree',
-  'Weedle',
-  'Kakuna',
-  'Beedrill',
-  'Pidgey',
-  'Pidgeotto',
-  'Pidgeot',
-  'Rattata',
-  'Raticate',
-  'Spearow',
-  'Fearow',
-  'Ekans',
-  'Arbok',
-  'Pikachu',
-  'Raichu',
-  'Sandshrew',
-  'Sandslash',
-  'Nidoran',
-  'Nidorina',
-  'Nidoqueen',
-  'Nidoran',
-  'Nidorino',
-  'Nidoking',
-  'Clefairy',
-  'Clefable',
-  'Vulpix',
-  'Ninetales',
-  'Jigglypuff',
-  'Wigglytuff',
-  'Zubat',
-  'Golbat',
-  'Oddish',
-  'Gloom',
-  'Vileplume',
-  'Paras',
-  'Parasect',
-  'Venonat',
-  'Venomoth',
-  'Diglett',
-  'Dugtrio',
-  'Meowth',
-  'Persian',
-  'Psyduck',
-  'Golduck',
-  'Mankey',
-  'Primeape',
-  'Growlithe',
-  'Arcanine',
-  'Poliwag',
-  'Poliwhirl',
-  'Poliwrath',
-  'Abra',
-  'Kadabra',
-  'Alakazam',
-  'Machop',
-  'Machoke',
-  'Machamp',
-  'Bellsprout',
-  'Weepinbell',
-  'Victreebel',
-  'Tentacool',
-  'Tentacruel',
-  'Geodude',
-  'Graveler',
-  'Golem',
-  'Ponyta',
-  'Rapidash',
-  'Slowpoke',
-  'Slowbro',
-  'Magnemite',
-  'Magneton',
-  "Farfetch'd",
-  'Doduo',
-  'Dodrio',
-  'Seel',
-  'Dewgong',
-  'Grimer',
-  'Muk',
-  'Shellder',
-  'Cloyster',
-  'Gastly',
-  'Haunter',
-  'Gengar',
-  'Onix',
-  'Drowzee',
-  'Hypno',
-  'Krabby',
-  'Kingler',
-  'Voltorb',
-  'Electrode',
-  'Exeggcute',
-  'Exeggutor',
-  'Cubone',
-  'Marowak',
-  'Hitmonlee',
-  'Hitmonchan',
-  'Lickitung',
-  'Koffing',
-  'Weezing',
-  'Rhyhorn',
-  'Rhydon',
-  'Chansey',
-  'Tangela',
-  'Kangaskhan',
-  'Horsea',
-  'Seadra',
-  'Goldeen',
-  'Seaking',
-  'Staryu',
-  'Starmie',
-  'Mr. Mime',
-  'Scyther',
-  'Jynx',
-  'Electabuzz',
-  'Magmar',
-  'Pinsir',
-  'Tauros',
-  'Magikarp',
-  'Gyarados',
-  'Lapras',
-  'Ditto',
-  'Eevee',
-  'Vaporeon',
-  'Jolteon',
-  'Flareon',
-  'Porygon',
-  'Omanyte',
-  'Omastar',
-  'Kabuto',
-  'Kabutops',
-  'Aerodactyl',
-  'Snorlax',
-  'Articuno',
-  'Zapdos',
-  'Moltres',
-  'Dratini',
-  'Dragonair',
-  'Dragonite',
-  'Mewtwo',
-  'Mew',
-]
+import Image from 'next/image'
+import { unstable_cache } from 'next/cache'
+import { Suspense } from 'react'
 
 function fetchPokemon() {
   //  https://pokeapi.co/api/v2/pokemon?limit=150&offset=0
   // https://pokeapi.co/api/v2/pokedex/?offset=20&limit=12
   // og pokemon pokedex
   //  return fetch('https://pokeapi.co/api/v2/pokedex/kanto/')
-  return fetch('https://pokeapi.co/api/v2/pokemon/?limit=151&offset=0')
+  //  we'll go to 649 for now because 650 is when we lose images
+  return fetch('https://pokeapi.co/api/v2/pokemon?limit=151&offset=0')
 }
 
 async function getPokemon() {
@@ -179,10 +26,22 @@ async function getPokemon() {
   return response
 }
 
-function getIndividualPokemon(pokemon) {
-  // return pokemon.map(({ pokemon_species: { url } }) =>
-  return pokemon.map(({ url }) => fetch(url).then((item) => item.json()))
+function getIndividualPokemon(url) {
+  return fetch(url).then((pokemon) => pokemon.json())
 }
+
+const getCachedPokemon = unstable_cache(getPokemon, ['pokemon-list'], {
+  tags: ['all-pokemon-list'],
+  revalidate: 60 * 60,
+})
+
+const getACachedPokemon = unstable_cache(
+  async (url) => getIndividualPokemon(url),
+  ['pokemon'],
+  {
+    revalidate: 60 * 60,
+  },
+)
 
 function getFormattedNumber(number) {
   if (number < 10) {
@@ -211,11 +70,12 @@ const prisma = new PrismaClient()
 
 export default async function StandardPage() {
   const users = await prisma.users.findMany()
-  console.log('test', users)
-  /// const { pokemon_entries } = await getPokemon()
-  const data = await getPokemon()
-  // const poke = await Promise.allSettled(getIndividualPokemon(pokemon_entries))
-  const poke = await Promise.allSettled(getIndividualPokemon(data.results))
+
+  const data = await getCachedPokemon()
+
+  const poke = await Promise.allSettled(
+    data.results.map((result) => getACachedPokemon(result.url)),
+  )
 
   return (
     <Suspense fallback="Loading...">
@@ -224,19 +84,21 @@ export default async function StandardPage() {
           return (
             <Card
               key={poke.id}
-              className="p-4 flex flex-col group hover:-translate-y-2 hover:border-slate-400 transition-all shadow-3xlxl"
+              className="p-4 flex flex-col group hover:-translate-y-2 hover:border-slate-400 transition-all hover:shadow-lift"
             >
               <CardContent className="grow -mt-20 pb-20 self-center bg-background">
-                <Image
-                  width={150}
-                  height={150}
-                  className="px-5 group-hover:scale-150 transition-transform"
-                  alt={
-                    poke.name.toUpperCase().charAt(0) +
-                    poke.name.replace(/-/g, ' ').slice(1)
-                  }
-                  src={poke.sprites.other.dream_world.front_default}
-                />
+                {poke.sprites.other.dream_world.front_default ? (
+                  <Image
+                    width={150}
+                    height={150}
+                    className="px-5 group-hover:scale-150 transition-transform"
+                    alt={
+                      poke.name.toUpperCase().charAt(0) +
+                      poke.name.replace(/-/g, ' ').slice(1)
+                    }
+                    src={poke.sprites.other.dream_world.front_default}
+                  />
+                ) : null}
               </CardContent>
               <hr className="group-hover:border-slate-400 transition-colors" />
               <CardHeader className="mt-auto">
